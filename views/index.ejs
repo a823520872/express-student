@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title><%= title %></title>
+        <link rel="stylesheet" href="/stylesheets/style.css" />
+    </head>
+    <body>
+        <h1><%= title %></h1>
+        <p>Welcome to <%= title %></p>
+        <div id="app">
+            <form @submit.prevent="handleSubmit">
+                <select v-if="provinces && provinces.length" v-model="p_id" placeholder="省" @change="handleProvince">
+                    <option value="">全部</option>
+                    <option v-for="li in provinces" :key="li.id" :value="li.id">{{ li.title }}</option>
+                </select>
+                <select v-if="citys && citys.length" v-model="c_id" placeholder="市" @change="handleCity">
+                    <option value="">全部</option>
+                    <option v-for="li in citys" :key="li.id" :value="li.id">{{ li.title }}</option>
+                </select>
+                <select v-if="countys && countys.length" v-model="c2_id" placeholder="区">
+                    <option value="">全部</option>
+                    <option v-for="li in countys" :key="li.id" :value="li.id">{{ li.title }}</option>
+                </select>
+                <button type="submit">提交</button>
+            </form>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+        <script>
+            new Vue({
+                el: '#app',
+                data: {
+                    provinces: [],
+                    citys: [],
+                    countys: [],
+                    p_id: '',
+                    c_id: '',
+                    c2_id: ''
+                },
+                mounted() {
+                    this.getProvince()
+                },
+                methods: {
+                    getProvince() {
+                        ajax('/api/address/getProvince').then(res => {
+                            this.provinces = res
+                        })
+                    },
+                    handleProvince() {
+                        ajax('/api/address/getCity', { p_id: this.p_id })
+                            .then(res => {
+                                this.citys = res
+                            })
+                            .catch(e => {
+                                console.log(e)
+                            })
+                    },
+                    handleCity() {
+                        ajax('/api/address/getCounty', { p_id: this.c_id })
+                            .then(res => {
+                                this.countys = res
+                            })
+                            .catch(e => {
+                                console.log(e)
+                            })
+                    },
+                    handleSubmit(e) {}
+                }
+            })
+            function ajax(url, params, cfg) {
+                cfg = { ...{ type: 'get' }, ...cfg }
+                let requestInit = {
+                    method: cfg.type
+                }
+                if (cfg.type === 'get') {
+                    if (params) {
+                        url += '?' + Object.keys(params).map((key, i) => (i === 0 ? '' : '&') + key + '=' + params[key])
+                    }
+                } else {
+                    requestInit.body = JSON.stringify(params)
+                }
+                return fetch(url).then(res => res.json())
+            }
+        </script>
+    </body>
+</html>
