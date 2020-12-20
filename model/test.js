@@ -4,11 +4,11 @@ const {
     Schema: { ObjectId },
 } = mongoose
 
-const Addr = new Schema({
+const Test = new Schema({
     id: Number,
     title: String,
     level: Number,
     parentId: Number,
 })
 
-module.exports = mongoose.model('addr', Addr)
+module.exports = mongoose.model('test', Test)
